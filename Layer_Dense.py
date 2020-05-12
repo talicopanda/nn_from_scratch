@@ -16,6 +16,22 @@ class Layer_Dense:
     def forward(self, inputs):
         self.output = np.dot(inputs, self.weights) + self.biases
 
+        # Remember input values for backprop
+        self.inputs = inputs
+
+    # Backward pass
+    def backward(self, dvalues):
+        # Gradients on parameters
+        self.dweights = np.dot(self.inputs.T, dvalues)
+        # inputs.T = partial derivatives of weights
+        # self.dweights = dvalue*dweights (chain rule)
+        self.dbiases = np.sum(dvalues, axis=0, keepdims=True)
+        # dbiases = dvalue*dbias (chain rule) but dbias = 1
+        # so dbiases = dvalue and we are summing up all samples
+
+        # Gradient on values
+        self.dvalues = np.dot(dvalues, self.weights.T)
+
 
 ''' "Derivation" of the above
 

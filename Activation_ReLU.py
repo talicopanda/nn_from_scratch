@@ -13,3 +13,15 @@ class Activation_ReLU:
             else:
                 output.append(0)
         '''
+
+        # Remember input values for backprop
+        self.inputs = inputs
+
+    # Backward pass
+    def backward(self, dvalues):
+        # Since we need to modify the original variable,
+        # let's make a copy of the values first
+        self.dvalues = dvalues.copy()
+
+        # Zero gradient where input values were negative
+        self.dvalues[self.inputs <= 0] = 0
