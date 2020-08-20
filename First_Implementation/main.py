@@ -1,9 +1,9 @@
 import numpy as np
 
-from Activation_ReLU import Activation_ReLU
-from Activation_Softmax import Activation_Softmax
-from Layer_Dense import Layer_Dense
-from Loss_CategoricalCrossentropy import Loss_CategoricalCrossentropy
+from First_Implementation.Activation_ReLU import Activation_ReLU
+from First_Implementation.Activation_Softmax import Activation_Softmax
+from First_Implementation.Layer_Dense import Layer_Dense
+from First_Implementation.Loss_CategoricalCrossentropy import Loss_CategoricalCrossentropy
 
 np.random.seed(0)
 
