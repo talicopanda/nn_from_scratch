@@ -1,7 +1,7 @@
 import numpy as np
 
 # import function to initialize weights and biases
-from util.paramInitializer import initialize_parameters
+from Second_Implementation.util.paramInitializer import initialize_parameters
 
 
 class LinearLayer:

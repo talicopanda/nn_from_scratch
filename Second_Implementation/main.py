@@ -1,10 +1,31 @@
 import numpy as np
-from util import *
-from Layers.LinearLayer import LinearLayer
-from Layers.ActivationLayer import SigmoidLayer
+from Second_Implementation.util.utilities import *
+from Second_Implementation.util.cost_functions import *
+from Second_Implementation.Layers.LinearLayer import LinearLayer
+from Second_Implementation.Layers.SigmoidLayer import SigmoidLayer
 
 
 if __name__ == '__main__':
+    # This is our XOR gate data
+
+    X = np.array([
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ])
+
+    Y = np.array([
+        [0],
+        [1],
+        [1],
+        [0]
+    ])
+
+    X_train = X.T
+    Y_train = Y.T
+
+    # define training constants
     learning_rate = 1
     number_of_epochs = 5000
 
@@ -36,7 +57,7 @@ if __name__ == '__main__':
         A2.forward(Z2.Z)
 
         # ---------------------- Compute Cost ----------------------------
-        cost, dA2 = compute_cost(Y=Y_train, Y_hat=A2.A)
+        cost, dA2 = compute_mse_cost(Y=Y_train, Y_hat=A2.A)
 
         # print and store Costs every 100 iterations.
         if (epoch % 100) == 0:
