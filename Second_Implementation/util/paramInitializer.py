@@ -11,19 +11,27 @@ def initialize_parameters(n_in, n_out, ini_type='plain'):
         params: a dictionary containing W and b
     """
 
-    params = dict()  # initialize empty dictionary of neural net parameters W and b
+    # initialize empty dictionary of neural net parameters W and b
+    params = dict()
+    # the <params> dictionary contains 2 numpy arrays found by the keywords
+    # "W" and "b" representing the weights and biases respectively
+
+    # Full explanation of the different weight initialization techniques:
+    # https://cs231n.github.io/neural-networks-2/#init
 
     if ini_type == 'plain':
-        params['W'] = np.random.randn(n_out, n_in) *0.01  # set weights 'W' to small random gaussian
+        # set weights 'W' to small random gaussian
+        params['W'] = np.random.randn(n_out, n_in) * 0.01
     elif ini_type == 'xavier':
-        params['W'] = np.random.randn(n_out, n_in) / (np.sqrt(n_in))  # set variance of W to 1/n
+        # same as above but normalized
+        # set variance of W to 1/n
+        params['W'] = np.random.randn(n_out, n_in) / (np.sqrt(n_in))
     elif ini_type == 'he':
-        # Good when ReLU used in hidden layers
-        # Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification
-        # Kaiming He et al. (https://arxiv.org/abs/1502.01852)
-        # http: // cs231n.github.io / neural - networks - 2 /  # init
+        # Good initialization when ReLU used in hidden layers
+        # As exaplined in this paper: https://arxiv.org/abs/1502.01852
         params['W'] = np.random.randn(n_out, n_in) * np.sqrt(2/n_in)  # set variance of W to 2/n
 
-    params['b'] = np.zeros((n_out, 1))    # set bias 'b' to zeros
+    # set bias 'b' to zeros
+    params['b'] = np.zeros((n_out, 1))
 
     return params

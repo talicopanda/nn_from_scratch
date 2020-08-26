@@ -6,46 +6,56 @@ from Second_Implementation.util.paramInitializer import initialize_parameters
 
 class LinearLayer:
     """
-        This Class implements all functions to be executed by a linear layer
-        in a computational graph
+        This Class implements a linear layer for the neural network
         Args:
             input_shape: input shape of Data/Activations
             n_out: number of neurons in layer
-            ini_type: initialization type for weight parameters, default is "plain"
-                      Opitons are: plain, xavier and he
+            ini_type: initialization type for weight parameters
+                      Options are: "plain" (small random gaussian numbers),
+                                   "xavier" and "he"
+
         Methods:
             forward(A_prev)
             backward(upstream_grad)
             update_params(learning_rate)
     """
 
+    # Class variables
+    m: int  # number of examples in training data
+    params: dict[int]  # stores weights and bias in a dictionary
+    Z:  np.array  # Z output of linear layer
+
+    a_prev: np.array  # activations from the previous layer
+
+    dW: np.array  # derivative of Cost w.r.t W
+    db: np.array  # derivative of Cost w.r.t b, sum across rows
+    dA_prev: np.array  # derivative of Cost w.r.t a_prev
+
     def __init__(self, input_shape, n_out, ini_type="plain"):
+        self.m = input_shape[1]
+
+        # initialize weights and bias with type <ini_type>
+        self.params = initialize_parameters(input_shape[0], n_out, ini_type)
+
+        # create space for resultant Z output
+        self.Z = np.zeros((self.params['W'].shape[0], input_shape[1]))
+
+    def forward(self, a_prev):
         """
-        The constructor of the LinearLayer takes the following parameters
+        Performs the forwards propagation using activations from previous layer
         Args:
-            input_shape: input shape of Data/Activations
-            n_out: number of neurons in layer
-            ini_type: initialization type for weight parameters, default is "plain"
+            a_prev:  Activations/Input Data coming into the layer from previous
+                     layer
         """
 
-        self.m = input_shape[1]  # number of examples in training data
-        # `params` store weights and bias in a python dictionary
-        self.params = initialize_parameters(input_shape[0], n_out, ini_type)  # initialize weights and bias
-        self.Z = np.zeros((self.params['W'].shape[0], input_shape[1]))  # create space for resultant Z output
+        self.a_prev = a_prev  # store the Activations/Training Data coming in
 
-    def forward(self, A_prev):
-        """
-        This function performs the forwards propagation using activations from previous layer
-        Args:
-            A_prev:  Activations/Input Data coming into the layer from previous layer
-        """
-
-        self.A_prev = A_prev  # store the Activations/Training Data coming in
-        self.Z = np.dot(self.params['W'], self.A_prev) + self.params['b']  # compute the linear function
+        # compute the linear function
+        self.Z = np.dot(self.params['W'], self.A_prev) + self.params['b']
 
     def backward(self, upstream_grad):
         """
-        This function performs the back propagation using upstream gradients
+        Performs the back propagation using upstream gradients
         Args:
             upstream_grad: gradient coming in from the upper layer to couple with local gradient
         """
@@ -61,10 +71,10 @@ class LinearLayer:
 
     def update_params(self, learning_rate=0.1):
         """
-        This function performs the gradient descent update
+        Performs the gradient descent update
         Args:
-            learning_rate: learning rate hyper-param for gradient descent, default 0.1
+            learning_rate: learning rate hyper-param for gradient descent
         """
 
-        self.params['W'] = self.params['W'] - learning_rate * self.dW  # update weights
-        self.params['b'] = self.params['b'] - learning_rate * self.db  # update bias(es)
+        self.params['W'] -= learning_rate * self.dW  # update weights
+        self.params['b'] -= learning_rate * self.db  # update bias(es)
