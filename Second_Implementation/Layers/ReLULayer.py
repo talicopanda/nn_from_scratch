@@ -1,8 +1,8 @@
 import numpy as np
 
-class SigmoidLayer:
+class ReLULayer:
     """
-    This Class implements a Sigmoid activation layer
+    This Class implements a Rectified Linear Unit (ReLU) activation layer
     Args:
         shape: shape of input to the layer
     Methods:
@@ -10,8 +10,9 @@ class SigmoidLayer:
         backward(upstream_grad)
     """
 
-    A: np.array  # output of Sigmoid layer
-    dZ: np.array  # derivative of Cost w.r.t the previous layer
+    A: np.array  # output of ReLU layer
+    dZ: np.array  # derivative of Cost w.r.t the previous layer (upper stream)
+    dRelu: np.array  # derivative of Relu w.r.t previous layer (local stream)
 
     def __init__(self, shape):
         # create space for the resultant activations
@@ -23,15 +24,18 @@ class SigmoidLayer:
         Args:
             Z: input from previous (linear) layer
         """
-        self.A = 1 / (1 + np.exp(-Z))  # compute sigmoid activations
+        self.A = np.max(0, Z)  # compute ReLU activations
 
     def backward(self, upstream_grad):
         """
         Performs the back propagation step through the activation function
-        Local gradient: derivative of sigmoid = A*(1-A)
+        Multiplies upstream gradient with local gradient to get the derivative
+        of Cost
         Args:
             upstream_grad: gradient coming into this layer from the layer above
         """
-        # Multiplies upstream gradient with local gradient to get the derivative
-        # of Cost
-        self.dZ = upstream_grad * self.A*(1-self.A)
+        # Local Gradient:
+        # Relu Gradient = 0 where input values were <= 0 and 1 otherwise
+        self.dRelu = self.A.copy()
+        self.dRelu[self.A > 0] = 1
+        self.dZ = upstream_grad * self.dRelu
