@@ -25,11 +25,11 @@ class LinearLayer:
     params: dict[int]  # stores weights and bias in a dictionary
     Z:  np.array  # Z output of linear layer
 
-    a_prev: np.array  # activations from the previous layer
+    A_prev: np.array  # activations from the previous layer
 
     dW: np.array  # derivative of Cost w.r.t W
     db: np.array  # derivative of Cost w.r.t b, sum across rows
-    dA_prev: np.array  # derivative of Cost w.r.t a_prev
+    dA_prev: np.array  # derivative of Cost w.r.t A_prev
 
     def __init__(self, input_shape, n_out, ini_type="plain"):
         self.m = input_shape[1]
@@ -40,15 +40,15 @@ class LinearLayer:
         # create space for resultant Z output
         self.Z = np.zeros((self.params['W'].shape[0], input_shape[1]))
 
-    def forward(self, a_prev):
+    def forward(self, A_prev):
         """
         Performs the forwards propagation using activations from previous layer
         Args:
-            a_prev:  Activations/Input Data coming into the layer from previous
+            A_prev:  Activations/Input Data coming into the layer from previous
                      layer
         """
 
-        self.a_prev = a_prev  # store the Activations/Training Data coming in
+        self.A_prev = A_prev  # store the Activations/Training Data coming in
 
         # compute the linear function
         self.Z = np.dot(self.params['W'], self.A_prev) + self.params['b']
