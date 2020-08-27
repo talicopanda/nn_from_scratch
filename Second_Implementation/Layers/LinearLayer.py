@@ -55,18 +55,26 @@ class LinearLayer:
 
     def backward(self, upstream_grad):
         """
-        Performs the back propagation using upstream gradients
+        Performs the back propagation using upstream gradients. Multiplies
+        upstream gradient with local gradient to get the derivative of Cost
         Args:
-            upstream_grad: gradient coming in from the upper layer to couple with local gradient
+            upstream_grad: gradient coming in from the upper layer
         """
 
+        # Derivatives to update parameters:
+
         # derivative of Cost w.r.t W
+        # dLinear/dW = self.A_prev.T
         self.dW = np.dot(upstream_grad, self.A_prev.T)
 
         # derivative of Cost w.r.t b, sum across rows
+        # dLinear/dB = 1
         self.db = np.sum(upstream_grad, axis=1, keepdims=True)
 
-        # derivative of Cost w.r.t A_prev
+        # Derivative to keep backpropagading down
+
+        # derivative of Cost w.r.t A_prev (if
+        # dLinear/dA_prev = self.params['W'].T
         self.dA_prev = np.dot(self.params['W'].T, upstream_grad)
 
     def update_params(self, learning_rate=0.1):
