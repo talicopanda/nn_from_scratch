@@ -1,22 +1,48 @@
 import numpy as np
 
 """
-Contains a bunch of Cost functions.
 This file implementations of :
+    - Mean Squared Error Cost function
     - Binary Cross_entropy Cost function
         * compute_binary_cost(Y, P_hat) -> "unstable"
         * compute_stable_bce_cost(Y, Z) -> "stable" 
         * computer_keras_like_bce_cost(Y, P_hat, from_logits=False) -> stable
-    - Mean Squared Error Cost function
 """
+
+def compute_mse_cost(Y, Y_hat):
+    """
+    Computes Mean Squared Error(mse) Cost and returns the Cost and
+    its derivative.
+    Squared Error Cost = (1/2m)*sum(Y - Y_hat)^.2
+    Args:
+        Y: labels of data
+        Y_hat: Predictions(activations) from a last layer, the output layer
+    Returns:
+        cost: The Squared Error Cost result
+        dY_hat: gradient of Cost w.r.t Y_hat
+    """
+    # number of examples in the batch
+    m = Y.shape[1]
+
+    cost = (1 / (2 * m)) * np.sum(np.square(Y - Y_hat))
+    # remove extra dimensions to give just a scalar
+    # (e.g. np.squeeze([[17]]) returns 17)
+    cost = np.squeeze(cost)
+
+    # derivative of the squared error cost function
+    dY_hat = -1 / m * (Y - Y_hat)
+
+    return cost, dY_hat
+
+
+# ----------- Additional Cost Functions -----------
 
 
 def compute_bce_cost(Y, P_hat):
     """
-    This function computes Binary Cross-Entropy(bce) Cost and returns the Cost and its
+    Computes Binary Cross-Entropy(bce) Cost and returns the Cost and its
     derivative.
-    This function uses the following Binary Cross-Entropy Cost defined as:
-    => (1/m) * np.sum(-Y*np.log(P_hat) - (1-Y)*np.log(1-P_hat))
+    BCE Cost = (1/m) * np.sum(-Y*np.log(P_hat) - (1-Y)*np.log(1-P_hat))
     Args:
         Y: labels of data
         P_hat: Estimated output probabilities from the last layer, the output layer
@@ -24,10 +50,12 @@ def compute_bce_cost(Y, P_hat):
         cost: The Binary Cross-Entropy Cost result
         dP_hat: gradient of Cost w.r.t P_hat
     """
-    m = Y.shape[1]  # m -> number of examples in the batch
+    # number of examples in the batch
+    m = Y.shape[1]
 
     cost = (1/m) * np.sum(-Y*np.log(P_hat) - (1-Y)*np.log(1-P_hat))
-    cost = np.squeeze(cost)  # remove extraneous dimensions to give just a scalar (e.g. this turns [[17]] into 17)
+    # remove extra dimensions
+    cost = np.squeeze(cost)
 
     dP_hat = (1/m) * (-(Y/P_hat) + ((1-Y)/(1-P_hat)))
 
@@ -36,10 +64,9 @@ def compute_bce_cost(Y, P_hat):
 
 def compute_stable_bce_cost(Y, Z):
     """
-    This function computes the "Stable" Binary Cross-Entropy(stable_bce) Cost and returns the Cost and its
-    derivative w.r.t Z_last(the last linear node) .
-    The Stable Binary Cross-Entropy Cost is defined as:
-    => (1/m) * np.sum(max(Z,0) - ZY + log(1+exp(-|Z|)))
+    Computes the "Stable" Binary Cross-Entropy(stable_bce) Cost and returns the \
+    Cost and its derivative w.r.t Z_last(the last linear node)
+    Stable BCE Cost = (1/m) * np.sum(max(Z,0) - ZY + log(1+exp(-|Z|)))
     Args:
         Y: labels of data
         Z: Values from the last linear node
@@ -50,16 +77,17 @@ def compute_stable_bce_cost(Y, Z):
     m = Y.shape[1]
 
     cost = (1/m) * np.sum(np.maximum(Z, 0) - Z*Y + np.log(1+ np.exp(- np.abs(Z))))
-    dZ_last = (1/m) * ((1/(1+np.exp(- Z))) - Y)  # from Z computes the Sigmoid so P_hat - Y, where P_hat = sigma(Z)
+    # from Z computes the Sigmoid so P_hat - Y, where P_hat = sigma(Z)
+    dZ_last = (1/m) * ((1/(1+np.exp(- Z))) - Y)
 
     return cost, dZ_last
 
-
+# TODO: Research more about this cost implementation
 def compute_keras_like_bce_cost(Y, P_hat, from_logits=False):
     """
-    This function computes the Binary Cross-Entropy(stable_bce) Cost function the way Keras
-    implements it. Accepting either probabilities(P_hat) from the sigmoid neuron or values direct
-    from the linear node(Z)
+    Computes the Binary Cross-Entropy(stable_bce) Cost function the way Keras
+    implements it. Accepting either probabilities(P_hat) from the sigmoid neuron
+    or values direct from the linear node(Z)
     Args:
         Y: labels of data
         P_hat: Probabilities from sigmoid function
@@ -86,26 +114,3 @@ def compute_keras_like_bce_cost(Y, P_hat, from_logits=False):
 
         # now call compute_stable_bce_cost
         return compute_stable_bce_cost(Y, Z)
-
-
-
-def compute_mse_cost(Y, Y_hat):
-    """
-    This function computes Mean Squared Error(mse) Cost and returns the Cost and its derivative.
-    This function uses the Squared Error Cost defined as follows:
-    => (1/2m)*sum(Y - Y_hat)^.2
-    Args:
-        Y: labels of data
-        Y_hat: Predictions(activations) from a last layer, the output layer
-    Returns:
-        cost: The Squared Error Cost result
-        dY_hat: gradient of Cost w.r.t Y_hat
-    """
-    m = Y.shape[1]  # m -> number of examples in the batch
-
-    cost = (1 / (2 * m)) * np.sum(np.square(Y - Y_hat))
-    cost = np.squeeze(cost)  # remove extraneous dimensions to give just a scalar (e.g. this turns [[17]] into 17)
-
-    dY_hat = -1 / m * (Y - Y_hat)  # derivative of the squared error cost function
-
-    return cost, dY_hat
