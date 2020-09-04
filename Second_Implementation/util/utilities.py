@@ -1,12 +1,12 @@
 import numpy as np
-import matplotlib.pyplot as plt  # import matplotlib for plotting and visualization
+import matplotlib.pyplot as plt
 import matplotlib
 
 # only required for inline labels in `plot_decision_boundary_distances` function
 try:
     from labellines import labelLine
 except ImportError:
-    print("""Caution! `matplotlib-label-lines` package is not available, 'plot_decision_boundary_distances`
+    print("""`matplotlib-label-lines` package is not available, 'plot_decision_boundary_distances`
     will not work. Try installing the package through `pip install matplotlib-label-lines`""")
 
 
@@ -34,27 +34,29 @@ def predict(X, Y, Zs, As, thresh=0.5):
     n = len(Zs)  # number of layers in the neural network
     p = np.zeros((1, m))
 
-    # Forward propagation
+    # Forward propagation for prediction
     Zs[0].forward(X)
     As[0].forward(Zs[0].Z)
     for i in range(1, n):
         Zs[i].forward(As[i-1].A)
         As[i].forward(Zs[i].Z)
-    probas = As[n-1].A
 
-    # convert probas to 0/1 predictions
-    for i in range(0, probas.shape[1]):
-        if probas[0, i] >= thresh:  # 0.5  the default threshold
+    # store the prediction results, which is the output from the last activation
+    # layer
+    probabilities = As[n-1].A
+
+    # convert probabilities to 0/1 (yes/no) predictions
+    for i in range(0, probabilities.shape[1]):
+        if probabilities[0, i] >= thresh:  # 0.5  the default threshold
             p[0, i] = 1
         else:
             p[0, i] = 0
 
-    # print results
-    # print ("predictions: " + str(p))
-    # print ("true labels: " + str(y))
+    # calculate accuracy based on the amount of the percentage of predictions
+    # that are equal to the ground truth Y
     accuracy = np.sum((p == Y) / m)
 
-    return p, probas, accuracy*100
+    return p, probabilities, accuracy*100
 
 
 def plot_learning_curve(costs, learning_rate, total_epochs, save=False):
@@ -69,22 +71,25 @@ def plot_learning_curve(costs, learning_rate, total_epochs, save=False):
     # plot the cost
     plt.figure()
 
-    steps = int(total_epochs / len(costs))  # the steps at with costs were recorded
+    # the steps at which costs were recorded
+    steps = int(total_epochs / len(costs))
     plt.ylabel('Cost')
     plt.xlabel('Iterations ')
     plt.title("Learning rate =" + str(learning_rate))
     plt.plot(np.squeeze(costs))
     locs, labels = plt.xticks()
-    plt.xticks(locs[1:-1], tuple(np.array(locs[1:-1], dtype='int')*steps))  # change x labels of the plot
+    # change x labels of the plot
+    plt.xticks(locs[1:-1], tuple(np.array(locs[1:-1], dtype='int')*steps))
     plt.xticks()
     if save:
         plt.savefig('Cost_Curve.png', bbox_inches='tight')
     plt.show()
 
+# ------------------ Plotting helper functions ------------------
 
 def predict_dec(Zs, As, X, thresh=0.5):
     """
-    Used for plotting decision boundary.
+    Used for plotting decision boundary only (similar to predict).
     Args:
         Zs: All linear layers in form of a list e.g [Z1,Z2,...,Zn]
         As: All Activation layers in form of a list e.g [A1,A2,...,An]
@@ -106,10 +111,10 @@ def predict_dec(Zs, As, X, thresh=0.5):
     for i in range(1, n):
         Zs[i].forward(As[i - 1].A)
         As[i].forward(Zs[i].Z)
-    probas = As[n - 1].A   # output probabilities
+    probabilities = As[n - 1].A   # output probabilities
 
     # if probability of example >= thresh => output 1, vice versa
-    predictions = (probas >= thresh)
+    predictions = (probabilities >= thresh)
     return predictions
 
 
@@ -125,7 +130,8 @@ def plot_decision_boundary(model, X, Y, feat_crosses=None, axis_lines=False,save
     """
 
     # first plot the data to see what is the size of the plot
-    plt.scatter(X[:, 0], X[:, 1], s=200, c=np.squeeze(Y))  # s-> size of marker
+    # s -> size of marker
+    plt.scatter(X[:, 0], X[:, 1], s=200, c=np.squeeze(Y))
 
     # get the x and y range of the plot
     x_ticks = plt.xticks()[0]

@@ -6,8 +6,12 @@ from Second_Implementation.Layers.SigmoidLayer import SigmoidLayer
 
 
 if __name__ == '__main__':
-    # This is our XOR gate data
 
+    # ---------- Setting up the data ----------
+
+    # XOR gate data
+
+    # inputs
     X = np.array([
         [0, 0],
         [0, 1],
@@ -15,6 +19,7 @@ if __name__ == '__main__':
         [1, 1]
     ])
 
+    # expected outputs
     Y = np.array([
         [0],
         [1],
@@ -25,62 +30,64 @@ if __name__ == '__main__':
     X_train = X.T
     Y_train = Y.T
 
+    # ---------- Defining hyper-parameters ----------
+
     # define training constants
     learning_rate = 1
     number_of_epochs = 5000
 
-    np.random.seed(48) # set seed value so that the results are reproduceable
-    # (weights will now be initailzaed to the same pseudo-random numbers, each time)
+    # set seed value so that the weight initialization results are reproduceable
+    np.random.seed(48)
 
+    # ---------- Network architecture ----------
 
-    # Our network architecture has the shape:
-    # (input)--> [Linear->Sigmoid] -> [Linear->Sigmoid] -->(output)
-
-    #------ LAYER-1 ----- define hidden layer that takes in training data
+    # Layer 1: hidden layer that takes in training data with 3 neurons
     Z1 = LinearLayer(input_shape=X_train.shape, n_out=3, ini_type='xavier')
     A1 = SigmoidLayer(Z1.Z.shape)
 
-    #------ LAYER-2 ----- define output layer that take is values from hidden layer
-    Z2= LinearLayer(input_shape=A1.A.shape, n_out=1, ini_type='xavier')
-    A2= SigmoidLayer(Z2.Z.shape)
+    # Layer 2: output layer that take is values from hidden layer
+    Z2 = LinearLayer(input_shape=A1.A.shape, n_out=1, ini_type='xavier')
+    A2 = SigmoidLayer(Z2.Z.shape)
 
-    costs = [] # initially empty list, this will store all the costs after a certian number of epochs
+    # This will store all the costs after a certain number of epochs
+    costs = []
 
     # Start training
     for epoch in range(number_of_epochs):
 
-        # ------------------------- forward-prop -------------------------
+        # ---------- Forward pass ----------
+
+        # perform linear calculations
         Z1.forward(X_train)
+        # perform activation on results
         A1.forward(Z1.Z)
 
+        # perform linear calculations
         Z2.forward(A1.A)
+        # perform activation on results
         A2.forward(Z2.Z)
 
-        # ---------------------- Compute Cost ----------------------------
+        # ---------- Compute cost ----------
+        # A2.A => final outputs => predictions
         cost, dA2 = compute_mse_cost(Y=Y_train, Y_hat=A2.A)
 
         # print and store Costs every 100 iterations.
         if (epoch % 100) == 0:
-            #print("Cost at epoch#" + str(epoch) + ": " + str(cost))
             print("Cost at epoch#{}: {}".format(epoch, cost))
             costs.append(cost)
 
-        # ------------------------- back-prop ----------------------------
+        # ---------- Backward pass ----------
         A2.backward(dA2)
         Z2.backward(A2.dZ)
 
         A1.backward(Z2.dA_prev)
         Z1.backward(A1.dZ)
 
-        # ----------------------- Update weights and bias ----------------
+        # ---------- Update weights and biases ----------
         Z2.update_params(learning_rate=learning_rate)
         Z1.update_params(learning_rate=learning_rate)
 
-    # See what the final weights and bias are training
-    # print(Z2.params)
-    # print(Z2.params)
-
-    # see the ouptput predictions
+    # see the output predictions and discard the non-binary results
     predicted_outputs, _, accuracy = predict(X=X_train, Y=Y_train, Zs=[Z1, Z2], As=[A1, A2])
 
     print("The predicted outputs:\n {}".format(predicted_outputs))
@@ -88,5 +95,5 @@ if __name__ == '__main__':
 
     plot_learning_curve(costs=costs, learning_rate=learning_rate, total_epochs=number_of_epochs)
 
-
-    plot_decision_boundary(lambda x:predict_dec(Zs=[Z1, Z2], As=[A1, A2], X=x.T), X_train.T, Y_train.T)
+    # plot_decision_boundary(lambda x:predict_dec(Zs=[Z1, Z2], As=[A1, A2],
+    # X=x.T), X_train.T, Y_train.T)
