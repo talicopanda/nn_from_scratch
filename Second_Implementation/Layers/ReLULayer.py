@@ -24,7 +24,7 @@ class ReLULayer:
         Args:
             Z: input from previous (linear) layer
         """
-        self.A = np.max(0, Z)  # compute ReLU activations
+        self.A = np.maximum(0, Z)  # compute ReLU activations
 
     def backward(self, upstream_grad):
         """

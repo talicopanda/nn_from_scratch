@@ -14,10 +14,51 @@ except ImportError:
 Contains a bunch of helper functions
 """
 
-
-def predict(X, Y, Zs, As, thresh=0.5):
+def predict_reg(X, Y, Zs, As, thresh=0.5):
     """
-    helper function to predict on data using a neural net model layers
+    helper function to predict regression of the data using a neural net
+     model layers
+    Args:
+        X: Data in shape (features x num_of_examples)
+        Y: labels in shape ( label x num_of_examples)
+        Zs: All linear layers in form of a list e.g [Z1,Z2,...,Zn]
+        As: All Activation layers in form of a list e.g [A1,A2,...,An]
+        thresh: is the classification threshold. All values >= threshold belong to positive class(1)
+                and the rest to the negative class(0).Default threshold value is 0.5
+    Returns::
+        p: predicted labels
+        probas : raw probabilities
+        accuracy: the number of correct predictions from total predictions
+    """
+    m = X.shape[1]
+    n = len(Zs)  # number of layers in the neural network
+    p = np.zeros((1, m))
+
+    # Forward propagation for prediction
+    Zs[0].forward(X)
+    As[0].forward(Zs[0].Z)
+    for i in range(1, n):
+        Zs[i].forward(As[i-1].A)
+        As[i].forward(Zs[i].Z)
+
+    # store the prediction results, which is the output from the last activation
+    # layer
+    probabilities = As[n-1].A
+
+    # convert probabilities distributions into predictions
+    # returns the highest probabilities i.e. predictions of the network
+    p = np.reshape(np.argmax(probabilities, axis=0), (1, m))
+
+    # calculate accuracy based on the amount of the percentage of predictions
+    # that are equal to the ground truth Y
+    accuracy = np.sum((p == Y) / m)
+
+    return p, probabilities, accuracy*100
+
+def predict_cla(X, Y, Zs, As, thresh=0.5):
+    """
+    helper function to predict classification of the data using a neural net
+     model layers
     Args:
         X: Data in shape (features x num_of_examples)
         Y: labels in shape ( label x num_of_examples)

@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Dict
 
 # import function to initialize weights and biases
 from Second_Implementation.util.paramInitializer import initialize_parameters
@@ -22,7 +23,7 @@ class LinearLayer:
 
     # Class variables
     m: int  # number of examples in training data
-    params: dict[int]  # stores weights and bias in a dictionary
+    params: Dict  # stores weights and bias in a dictionary
     Z:  np.array  # Z output of linear layer
 
     A_prev: np.array  # activations from the previous layer
